@@ -11,7 +11,8 @@
         "d39979f8-4399-40cd-a99d-5bf8142b61ad",
         "758e4968-561d-43ea-97f5-c9fb811b77e6",
         "751c7bb5-081b-4375-bba4-76f178fb7a19",
-        "2f3a1964-55ba-4d6f-a93d-be16b6eda3ab"
+        "2f3a1964-55ba-4d6f-a93d-be16b6eda3ab",
+        "a2a3d419-4473-4221-9413-6435f5ce78d4"
     ],
     "filterType": "GMScript",
     "folderName": "Tiled",

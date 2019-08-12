@@ -70,13 +70,15 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 				
 				// TODO: filter tile number here
 				
+				// fetch tile data
 				var tileset_name = tilesets_gid[tile];
-				
 				var tileset_map = tilesets[? tileset_name];
 				
 				// TODO: set tile rotation and stuff here
+				// calculate tile number
 				var tile_number = tile - tileset_map[? "firstgid"];
 				
+				// calculate tilelayer, create tilemap if it doesn't exist
 				var tilelayer = new_tilelayers[? tileset_name]
 				if (is_undefined(tilelayer)) {
 					var tileset = asset_get_index(tileset_name);
@@ -94,9 +96,11 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 					new_tilelayers[? tileset_name] = tilelayer;
 				}
 				
+				// calculate cell position
 				var xcell = j % layer_map[? "width"];
 				var ycell = floor(j/layer_map[? "width"]);
 				
+				// assig tile
 				tilemap_set(tilelayer, tile_number, xcell, ycell);
 				show_debug_message(string(tile_number) + ", " + string(xcell) + ", " + string(ycell));
 			}

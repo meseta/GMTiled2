@@ -1,10 +1,15 @@
+/// @desc Parse <map>
+
 while DerpXmlRead_Read() {
-    show_debug_message("Parse map: " + DerpXmlRead_CurType() + ", " + DerpXmlRead_CurValue())
-	switch (DerpXmlRead_CurType()) {
+	var type = DerpXmlRead_CurType();
+	var value =  DerpXmlRead_CurValue();
+    show_debug_message("Parse <map>: " + type + ", " + value)
+	
+	switch (type) {
 		case "Whitespace":
 			break;
 		case "OpenTag":
-			switch (DerpXmlRead_CurValue()) {
+			switch (value) {
 				case "tileset":
 					tiled_parse_tileset();
 					break;
@@ -15,13 +20,18 @@ while DerpXmlRead_Read() {
 					tiled_parse_objectgroup();
 					break;
 				default:
-					show_error("Tiled Parse error: OpenTag " + DerpXmlRead_CurValue() + " not supported in map", true)
+					show_error("Tiled Parse error: OpenTag " + value + " not supported in map", true)
 			}
 			break;
 		case "CloseTag":
-			return;
+			if (value == "map") {
+				return;
+			}
+			else {
+				show_error("Tiled Parse error: unexpected CloseTag " + value + " in map", true)
+			}
 		default:
-			show_error("Tiled Parse error: " + DerpXmlRead_CurType() + " not supported in map", true)
+			show_error("Tiled Parse error: " + type + " not supported in map", true)
 			break;
 	}
 }
