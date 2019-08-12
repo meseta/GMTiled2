@@ -1,11 +1,11 @@
 // get tileset data
 var tileset_map = ds_map_create();
 var tileset_name = DerpXmlRead_CurGetAttribute("name");
-ds_map_add(tileset_map, "firstgid", DerpXmlRead_CurGetAttribute("firstgid"));
-ds_map_add(tileset_map, "tilewidth", DerpXmlRead_CurGetAttribute("tilewidth"));
-ds_map_add(tileset_map, "tileheight", DerpXmlRead_CurGetAttribute("tileheight"));
-ds_map_add(tileset_map, "tilecount", DerpXmlRead_CurGetAttribute("tilecount"));
-ds_map_add(tileset_map, "columns", DerpXmlRead_CurGetAttribute("columns"));
+ds_map_add(tileset_map, "firstgid", real(DerpXmlRead_CurGetAttribute("firstgid")));
+ds_map_add(tileset_map, "tilewidth", real(DerpXmlRead_CurGetAttribute("tilewidth")));
+ds_map_add(tileset_map, "tileheight", real(DerpXmlRead_CurGetAttribute("tileheight")));
+ds_map_add(tileset_map, "tilecount", real(DerpXmlRead_CurGetAttribute("tilecount")));
+ds_map_add(tileset_map, "columns", real(DerpXmlRead_CurGetAttribute("columns")));
 ds_map_add_map(tilesets, tileset_name, tileset_map);
 
 while DerpXmlRead_Read() {

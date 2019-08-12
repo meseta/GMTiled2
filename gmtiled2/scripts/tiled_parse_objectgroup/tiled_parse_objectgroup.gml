@@ -2,6 +2,7 @@
 var layer_map = ds_map_create();
 ds_map_add(layer_map, "type", "instance");
 ds_map_add(layer_map, "id", DerpXmlRead_CurGetAttribute("id"));
+ds_map_add(layer_map, "name", DerpXmlRead_CurGetAttribute("name"));
 var layer_index = ds_list_size(layers);
 ds_list_add(layers, layer_map);
 ds_list_mark_as_map(layers, layer_index);

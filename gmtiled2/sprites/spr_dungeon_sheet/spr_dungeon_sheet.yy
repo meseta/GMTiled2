@@ -2,7 +2,7 @@
     "id": "b6d29c78-b2b2-4aae-8de1-2cac9afadf56",
     "modelName": "GMSprite",
     "mvc": "1.12",
-    "name": "dungeon_sheet",
+    "name": "spr_dungeon_sheet",
     "For3D": false,
     "HTile": false,
     "VTile": false,
