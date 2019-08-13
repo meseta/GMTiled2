@@ -23,6 +23,8 @@ for(var key=ds_map_find_first(tilesets); not is_undefined(key);  key=ds_map_find
 	}
 }
 
+var propmap = [0, 6, 2, 7, 1, 4, 3, 5]; // tiled to GM property mapping
+
 // create the layers and whatnot
 for (var i = 0; i<ds_list_size(layers); i++) {
 	var layer_map = layers[| i];
@@ -65,18 +67,21 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 			// loop through data
 			buffer_seek(data, buffer_seek_start, 0);
 			for (var j=0; j<buffer_get_size(data)/4; j++) {
-				var tile = buffer_read(data, buffer_u32);
-				if (tile == 0) continue;
+				var tile_raw = buffer_read(data, buffer_u32);
+				if (tile_raw == 0) continue;
 				
 				// TODO: filter tile number here
+				var tile = tile_raw & 0x1fffffff;
+				var props = tile_raw >> 29;
+				var gmprops = propmap[props];
 				
 				// fetch tile data
 				var tileset_name = tilesets_gid[tile];
 				var tileset_map = tilesets[? tileset_name];
 				
-				// TODO: set tile rotation and stuff here
 				// calculate tile number
 				var tile_number = tile - tileset_map[? "firstgid"];
+				tile_number |= gmprops << 28; // re-attach tile properties
 				
 				// calculate tilelayer, create tilemap if it doesn't exist
 				var tilelayer = new_tilelayers[? tileset_name]

@@ -3,6 +3,9 @@
  <tileset firstgid="1" name="tl_dungeon_sheet" tilewidth="16" tileheight="16" tilecount="250" columns="25">
   <image source="../sprites/spr_dungeon_sheet/bf3bb2b3-0b48-43c7-aee7-b9233d8db6e8.png" width="400" height="160"/>
  </tileset>
+ <tileset firstgid="251" name="tl_rotation_test" tilewidth="16" tileheight="16" tilecount="16" columns="4">
+  <image source="../sprites/spr_rotation_test/0fd70d2a-56e6-4dac-a2af-e44556aaca64.png" width="64" height="64"/>
+ </tileset>
  <layer id="6" name="Floor" width="20" height="20">
   <data encoding="base64" compression="zlib">
    eJyzYmBgsBrFo3gUj+JRPIpJxAAAJFqh
@@ -10,7 +13,7 @@
  </layer>
  <layer id="7" name="Floor_clutter" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFpIKDA+2AQQoOD7QDRsGQBwforG8wgqFUvgAAt1sDxg==
+   eJxjYBgFpIKDA+2AQQoOD7QDRsGQBwforI9e4A8ELwDiA0Cc8JeBoQGIFYDYAYgfIKsdSuULAKUqDyo=
   </data>
  </layer>
  <layer id="1" name="Walls_lower" width="20" height="20">

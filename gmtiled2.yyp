@@ -127,6 +127,14 @@
             }
         },
         {
+            "Key": "30976261-913c-4014-8cb8-2908f543997d",
+            "Value": {
+                "id": "ffa8823b-1a1b-43ad-ab8d-5f6da970198b",
+                "resourcePath": "tilesets\\tl_rotation_test\\tl_rotation_test.yy",
+                "resourceType": "GMTileSet"
+            }
+        },
+        {
             "Key": "329b4c92-fddc-4b2b-a254-a89321af0088",
             "Value": {
                 "id": "841dd39d-fe37-452a-bca3-448b5a4e46d2",
@@ -172,6 +180,14 @@
                 "id": "b37fd74c-3119-408b-9ac1-7253432a2c10",
                 "resourcePath": "rooms\\room0\\room0.yy",
                 "resourceType": "GMRoom"
+            }
+        },
+        {
+            "Key": "3de8ac2f-7aa2-45b0-b87d-8810e05aa7b1",
+            "Value": {
+                "id": "dfa1e5c3-542a-4ed5-96f2-d5afb8f5713a",
+                "resourcePath": "sprites\\spr_rotation_test\\spr_rotation_test.yy",
+                "resourceType": "GMSprite"
             }
         },
         {
@@ -284,6 +300,14 @@
                 "id": "202fd52d-e5fe-43e4-8131-7257c05cdc9d",
                 "resourcePath": "scripts\\tiled_parse_objectgroup\\tiled_parse_objectgroup.yy",
                 "resourceType": "GMScript"
+            }
+        },
+        {
+            "Key": "75ac291e-7061-4bcb-8e8a-3b3545332d41",
+            "Value": {
+                "id": "c8c3f24f-0dac-4ea3-a835-8e250d8ba47f",
+                "resourcePath": "options\\html5\\options_html5.yy",
+                "resourceType": "GMHtml5Options"
             }
         },
         {
