@@ -1,3 +1,4 @@
+map_attribs = ds_map_create();
 tilesets = ds_map_create();
 layers = ds_list_create();
 
@@ -39,11 +40,56 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 		layer_id = layer_create(new_depth);
 	}
 	else {
+		show_debug_message("Moving layer " + name + " to " + string(new_depth));
 		layer_depth(layer_id, new_depth);
 	}
 	
 	switch (type) {
-		case "instance": // don't need to do anything
+		case "instance":
+			var instance_list = layer_map[? "instances"];
+			for (var j=0; j<ds_list_size(instance_list); j++) {
+				var instance = instance_list[| j];
+				
+				if (not is_string(instance[? "name"])) {  // skip instances with no name
+					show_debug_message("Object has no name, skipping");
+					continue;
+				}
+				if (asset_get_type(instance[? "name"]) != asset_object) { // not an object
+					show_debug_message("Object " + instance[? "name"] + " doesn't exist, skipping");
+					continue; 
+				}
+				
+				var object = asset_get_index(instance[? "name"]);
+				var inst = instance_create_layer(instance[? "x"], instance[? "y"], layer_id, object);
+				show_debug_message("Create instance " + instance[? "name"])
+				
+				var properties = instance[? "properties"];
+				
+				for (var k=0; k<ds_list_size(properties); k++) {
+					var	prop = properties[| k];
+					var value = prop[? "value"];
+					switch (prop[? "type"]) {
+						case "float":
+						case "int":
+							value = real(value);
+							break;
+						case "bool":
+							value = (value == "true")
+							break;
+						case "color":
+							value = tiled_convert_color(value);
+							break;
+					}
+					
+					show_debug_message("Set property " + prop[? "name"] + " to " + string(value));
+					variable_instance_set(inst, prop[? "name"], value);
+				}
+				
+				if (not is_undefined(instance[? "visible"]) and instance[? "visible"] == "0") {
+					inst.visible = false;
+				}
+				
+			}
 			break;
 		case "tile":
 			// data
@@ -102,12 +148,14 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 				}
 				
 				// calculate cell position
-				var xcell = j % layer_map[? "width"];
-				var ycell = floor(j/layer_map[? "width"]);
+				var xscale = map_attribs[? "tilewidth"] / tileset_map[? "tilewidth"];
+				var yscale = map_attribs[? "tileheight"] / tileset_map[? "tileheight"];
+				var xcell = floor(xscale * (j % layer_map[? "width"]));
+				var ycell = floor(yscale * (j / layer_map[? "width"]));
 				
-				// assig tile
+				// assign tile
 				tilemap_set(tilelayer, tile_number, xcell, ycell);
-				show_debug_message(string(tile_number) + ", " + string(xcell) + ", " + string(ycell));
+				show_debug_message(tileset_name + ": " + string(tile) + "("+string(gmprops)+"), " + string(xcell) + ", " + string(ycell));
 			}
 			
 			buffer_delete(data);
@@ -125,5 +173,6 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 with (objDerpXmlRead) instance_destroy();
 with (objDerpXmlWrite) instance_destroy();
 
+ds_map_destroy(map_attribs);
 ds_map_destroy(tilesets);
 ds_list_destroy(layers);

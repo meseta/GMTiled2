@@ -1,4 +1,13 @@
 /// @desc Parse <map>
+// get attributes
+ds_map_add(map_attribs, "version", DerpXmlRead_CurGetAttribute("version"));
+ds_map_add(map_attribs, "tiledversion", DerpXmlRead_CurGetAttribute("tiledversion"));
+ds_map_add(map_attribs, "orientation", DerpXmlRead_CurGetAttribute("orientation"));
+ds_map_add(map_attribs, "renderorder", DerpXmlRead_CurGetAttribute("renderorder"));
+ds_map_add(map_attribs, "width", real_or_undef(DerpXmlRead_CurGetAttribute("width")));
+ds_map_add(map_attribs, "height", real_or_undef(DerpXmlRead_CurGetAttribute("height")));
+ds_map_add(map_attribs, "tilewidth", real_or_undef(DerpXmlRead_CurGetAttribute("tilewidth")));
+ds_map_add(map_attribs, "tileheight", real_or_undef(DerpXmlRead_CurGetAttribute("tileheight")));
 
 while DerpXmlRead_Read() {
 	var type = DerpXmlRead_CurType();

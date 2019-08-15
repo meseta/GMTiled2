@@ -25,7 +25,7 @@ while DerpXmlRead_Read() {
 		case "OpenTag":
 			switch (value) {
 				case "data":
-					tiled_parse_data(layer_index);
+					tiled_parse_data(layer_map);
 					break;
 				default:
 					show_error("Tiled Parse error: OpenTag " + DerpXmlRead_CurValue() + " not supported in layer", true)

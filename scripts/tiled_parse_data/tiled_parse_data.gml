@@ -1,9 +1,8 @@
-/// @desc Parse <map><tileset><image>
-/// @arg layer_index the index of the layer, needed for adding to the right ds_map
+/// @desc Parse <map><layer><data>
+/// @arg layer_map the index of the map needed for adding layer data to
 
 // get attributes
-var layer_index = argument0;
-var layer_map = ds_list_find_value(layers, layer_index);
+var layer_map = argument0;
 ds_map_add(layer_map, "encoding", DerpXmlRead_CurGetAttribute("encoding"));
 ds_map_add(layer_map, "compression", DerpXmlRead_CurGetAttribute("compression"));
 
