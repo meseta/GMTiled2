@@ -1,5 +1,5 @@
 {
-    "id": "f9cc2027-a8bc-47a2-99dd-bc80ede091ff",
+    "id": "e3a17e59-05ce-41fd-b3a2-b5765d7763dc",
     "modelName": "GMScript",
     "mvc": "1.0",
     "name": "DerpXmlRead_CurRawValue",

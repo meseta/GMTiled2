@@ -1,5 +1,5 @@
 {
-    "id": "52c2bedb-077b-4a70-a9fe-50447fdc9569",
+    "id": "f0268096-84ee-459b-851f-eeb83290ed5e",
     "modelName": "GMScript",
     "mvc": "1.0",
     "name": "DerpXml_ThrowError",

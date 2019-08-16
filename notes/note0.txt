@@ -1,4 +1,4 @@
 Limitations:
-- only base64/zlib supported
+- only base64 and zlib or uncompressed supported
 - when tilelayer's tile size is not the same as map's tilesize (e.g. 32x32 tiles on a 16x16 tile map), tile coordinates will be rounded
 - object layers, tile IDs are not used, only the name
