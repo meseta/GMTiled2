@@ -1,2 +1,2 @@
-tiles = tiled_read(tmx_file);
+tiles = tiled_read("example.tmx");
 tiled_create(tiles);
