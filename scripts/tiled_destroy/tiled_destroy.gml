@@ -1,4 +1,8 @@
-/// @desc cleanup tiled artefacts
+/// @desc Unload all of the stuff loaded by the map
+///       This requires the map outputted by tiled_read
+///       The map will also be deleted at the end, so you
+///       only need either tiled_destroy or tiled_cleanup
+///
 /// @arg all_data datastructure used by tiled
 var all_data = argument0;
 

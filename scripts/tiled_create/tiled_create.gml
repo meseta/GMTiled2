@@ -7,14 +7,9 @@ var tilesets = all_data[? "tilesets"];
 var layers = all_data[? "layers"];
 
 // datastructures for undoing/unloading later
-var new_layers = ds_list_create();
-ds_map_add_list(all_data, "new_layers", new_layers)
-
-var original_depths = ds_map_create();
-ds_map_add_map(all_data, "original_depths", original_depths)
-
-var new_instances = ds_list_create();
-ds_map_add_list(all_data, "new_instances", new_instances);
+var new_layers = all_data[? "new_layers"]
+var original_depths = all_data[? "original_depths"]
+var new_instances = all_data[? "new_instances"]
 
 // check attribs
 if (map_attribs[? "orientation"] != "orthogonal") {

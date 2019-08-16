@@ -1,14 +1,24 @@
-/// @desc Begin parsing root of XML
+/// @desc Read a TMX file and parse out all of its data, returning a ds_map
+///       Example usage 1: Simply read the tmx file, create the tiles, and then cleanup memory
+///			var tiles = tiled_read("map1.tmx");
+///         tiled_create(tiles);
+///         tiled_cleanup(tiles);
+///
+///       Example usage 1: Read the tmx file, and create the tiles. Unload the tiles later
+///			global.tiles = tiled_read("map1.tmx");
+///         tiled_create(global.tiles);
+///         // and then later...
+///         tiled_destroy(global.tiles);
+///
 /// @arg filename name of the file to process
 
 var filename = argument0
-// TODO: check for file exists
 
-// Cleanup DerpXml, we don't want to use them
-with (objDerpXmlRead) instance_destroy();
+if (not file_exists(filename)) {
+	show_error("TMX file " + filename + " does not exist!", true);	
+}
 
 // parse the file
-DerpXml_Init();
 DerpXmlRead_OpenFile(filename)
 
 // datastructures needed
@@ -16,6 +26,9 @@ var all_data = ds_map_create();
 ds_map_add_map(all_data, "map_attribs", ds_map_create());
 ds_map_add_map(all_data, "tilesets", ds_map_create());
 ds_map_add_list(all_data, "layers", ds_list_create());
+ds_map_add_list(all_data, "new_layers", ds_list_create())
+ds_map_add_map(all_data, "original_depths", ds_map_create())
+ds_map_add_list(all_data, "new_instances", ds_list_create());
 
 while (DerpXmlRead_Read()) {
 	var type = DerpXmlRead_CurType();
@@ -45,6 +58,5 @@ while (DerpXmlRead_Read()) {
 
 // Cleanup DerpXml
 DerpXmlRead_CloseFile()
-with (objDerpXmlRead) instance_destroy();
 
 return all_data;

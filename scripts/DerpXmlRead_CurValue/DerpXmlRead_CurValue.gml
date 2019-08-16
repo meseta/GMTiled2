@@ -6,4 +6,4 @@
 //  DerpXmlType_Text <a>text</a>        - text
 //  DerpXmlType_Whitespace "    "       - "    "
 
-return objDerpXmlRead.currentValue
+return global.DerpXmlRead[? "currentValue"]

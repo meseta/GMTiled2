@@ -9,4 +9,4 @@
 //  DerpXmlType_StartOfFile - Start of document, no reads performed yet
 //  DerpXmlType_EndOfFile   - End of document
 
-return objDerpXmlRead.currentType
+return global.DerpXmlRead[? "currentType"]

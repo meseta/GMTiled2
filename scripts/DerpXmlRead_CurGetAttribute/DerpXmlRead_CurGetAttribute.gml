@@ -8,5 +8,5 @@
 //  See the example scripts, DerpXmlExample_ReadOther for usage.
 
 var keyString = argument0
-
-return objDerpXmlRead.attributeMap[? keyString]
+var attribs = global.DerpXmlRead[? "attributeMap"]
+return attribs[? keyString]
