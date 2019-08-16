@@ -53,6 +53,10 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 		layer_depth(layer_id, new_depth);
 	}
 	
+	if (layer_map[? "visible"] == 0) {
+		layer_set_visible(layer_id, false);	
+	}
+	
 	switch (type) {
 		case "instance":
 			var instance_list = layer_map[? "instances"];

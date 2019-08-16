@@ -7,6 +7,7 @@ var layer_map = ds_map_create();
 ds_map_add(layer_map, "type", "tile");
 ds_map_add(layer_map, "id", DerpXmlRead_CurGetAttribute("id"));
 ds_map_add(layer_map, "name", DerpXmlRead_CurGetAttribute("name"));
+ds_map_add(layer_map, "visible", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("visible")));
 ds_map_add(layer_map, "width", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("width")));
 ds_map_add(layer_map, "height", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("height")));
 ds_map_add(layer_map, "offsetx", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("offsetx")));
