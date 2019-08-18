@@ -103,7 +103,7 @@
                     "value": "0"
                 }
             ],
-            "copyToTargets": -1,
+            "copyToTargets": 144713361056071916,
             "filename": "gmtiled2.gml",
             "final": "",
             "functions": [

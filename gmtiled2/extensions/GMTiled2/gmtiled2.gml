@@ -329,6 +329,9 @@ if (map_attribs[? "orientation"] != "orthogonal") {
 if (map_attribs[? "renderorder"] != "right-down") {
 	show_error("Render order " + map_attribs[? "renderorder"] + " not supported. Use right-down only", true);
 }
+if (map_attribs[? "infinite"] == 1) {
+	show_error("Infinite maps are supported. Please limit yourself", true);
+}
 
 // calculate layer gid mapping
 var tilesets_gid = [];
@@ -649,6 +652,7 @@ while DerpXmlRead_Read() {
 			ds_map_add(layer_map, "data", value);
 			break;
 		case DerpXmlType_OpenTag:
+      show_error("Tiled Parse error: " + value + " not supported in data", true)
 			break;
 		case DerpXmlType_CloseTag:
 			if (value == "data") {
@@ -983,7 +987,7 @@ while (DerpXmlRead_Read()) {
 	var type = DerpXmlRead_CurType();
 	var value =  DerpXmlRead_CurValue();
 
-    show_debug_message("Parse to skip: " + type + ", " + value)
+  show_debug_message("Parse to skip: " + type + ", " + value)
 	if (type == DerpXmlType_CloseTag and value == tag_to_skip) {
 		return;
 	}
@@ -997,6 +1001,9 @@ var tilesets = argument0;
 // get attributes
 var tileset_map = ds_map_create();
 var tileset_name = DerpXmlRead_CurGetAttribute("name");
+if (not is_undefined(DerpXmlRead_CurGetAttribute("source"))) {
+  show_error("Tiled Pares error: external files not supported, please check the 'embed in map' checkbox", true);
+}
 ds_map_add(tileset_map, "firstgid", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("firstgid")));
 ds_map_add(tileset_map, "tilewidth", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilewidth")));
 ds_map_add(tileset_map, "tileheight", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tileheight")));
