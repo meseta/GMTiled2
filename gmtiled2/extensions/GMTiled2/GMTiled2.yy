@@ -1,7 +1,7 @@
 {
     "id": "eed9882c-4d38-40e3-96a1-9035f6eb00ac",
     "modelName": "GMExtension",
-    "mvc": "1.0",
+    "mvc": "1.2",
     "name": "GMTiled2",
     "IncludedResources": [
         
@@ -20,6 +20,7 @@
     "copyToTargets": -1,
     "date": "2019-53-16 09:08:29",
     "description": "",
+    "exportToGame": true,
     "extensionName": "",
     "files": [
         {
@@ -532,9 +533,12 @@
     "maccompilerflags": "",
     "maclinkerflags": "",
     "macsourcedir": "",
+    "options": null,
+    "optionsFile": "options.json",
     "packageID": "",
     "productID": "",
     "sourcedir": "",
+    "supportedTargets": -1,
     "tvosProps": false,
     "tvosSystemFrameworkEntries": [
         
