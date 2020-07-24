@@ -416,6 +416,11 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 				// First inherit properties from the tileset tile
 				for (var k=0; k<ds_list_size(tile_properties); k++) {
 					var	prop = tile_properties[| k];
+					if (prop[? "name"] == "_object_name") {
+						// Ignore this special property as it's not intended to set an instance variable
+						continue;
+					}
+					
 					var value = prop[? "value"];
 					switch (prop[? "type"]) {
 						case "float":
@@ -437,6 +442,11 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 				// Now get properties set on the instance itself
 				for (var k=0; k<ds_list_size(properties); k++) {
 					var	prop = properties[| k];
+					if (prop[? "name"] == "_object_name") {
+						// Ignore this special property as it's not intended to set an instance variable
+						continue;
+					}
+					
 					var value = prop[? "value"];
 					switch (prop[? "type"]) {
 						case "float":
