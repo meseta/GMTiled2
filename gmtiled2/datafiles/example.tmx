@@ -4,6 +4,7 @@
   <image source="../sprites/spr_dungeon_sheet/bf3bb2b3-0b48-43c7-aee7-b9233d8db6e8.png" width="400" height="160"/>
   <tile id="195">
    <properties>
+    <property name="_object_name" value="obj_character"/>
     <property name="image_index" type="int" value="0"/>
    </properties>
   </tile>
@@ -48,12 +49,13 @@
  </layer>
  <objectgroup id="9" name="Instances">
   <object id="20" name="obj_character" gid="197" x="187.5" y="140.5" width="16" height="16"/>
-  <object id="21" name="obj_character" gid="197" x="264.5" y="128.5" width="16" height="16">
+  <object id="21" gid="197" x="264.5" y="128.5" width="16" height="16">
    <properties>
+    <property name="_object_name" value="obj_character"/>
     <property name="image_alpha" type="float" value="0.5"/>
    </properties>
   </object>
-  <object id="23" name="obj_character" gid="196" x="118" y="186" width="16" height="16"/>
+  <object id="23" gid="196" x="118" y="186" width="16" height="16"/>
  </objectgroup>
  <layer id="8" name="Walls_upper" width="20" height="20">
   <data encoding="base64" compression="zlib">

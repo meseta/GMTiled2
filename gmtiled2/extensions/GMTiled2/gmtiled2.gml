@@ -377,6 +377,27 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 			var instance_list = layer_map[? "instances"];
 			for (var j=0; j<ds_list_size(instance_list); j++) {
 				var instance = instance_list[| j];
+				var tile = ds_map_find_value(tiles, instance[? "gid"]);
+				var tile_properties = tile[? "properties"];
+				var properties = instance[? "properties"];
+				
+				// Allow custom property with the object name as an alternative to the built-in Name property
+				if (ds_exists(tile_properties, ds_type_list)) {
+					for (var k=0; k<ds_list_size(tile_properties); k++) {
+						var prop = tile_properties[| k];
+						if (prop[? "name"] == "_object_name") {
+							instance[? "name"] = prop[? "value"];
+						}
+					}
+				}
+				if (ds_exists(properties, ds_type_list)) {
+					for (var k=0; k<ds_list_size(properties); k++) {
+						var prop = properties[| k];
+						if (prop[? "name"] == "_object_name") {
+							instance[? "name"] = prop[? "value"];
+						}
+					}
+				}
 
 				if (not is_string(instance[? "name"])) {  // skip instances with no name
 					show_debug_message("Object has no name, skipping");
@@ -391,11 +412,8 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 				var inst = instance_create_layer(instance[? "x"], instance[? "y"], layer_id, object);
 				show_debug_message("Create instance " + instance[? "name"])
 				ds_list_add(new_instances, inst);
-
-				// First inherit properties from the tileset tile
-				var tile = ds_map_find_value(tiles, instance[? "gid"]);
-				var tile_properties = tile[? "properties"];
 				
+				// First inherit properties from the tileset tile
 				for (var k=0; k<ds_list_size(tile_properties); k++) {
 					var	prop = tile_properties[| k];
 					var value = prop[? "value"];
@@ -417,8 +435,6 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 				}
 				
 				// Now get properties set on the instance itself
-				var properties = instance[? "properties"];
-
 				for (var k=0; k<ds_list_size(properties); k++) {
 					var	prop = properties[| k];
 					var value = prop[? "value"];
