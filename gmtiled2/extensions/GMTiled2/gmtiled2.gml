@@ -556,7 +556,7 @@ tiled_create(all_data);
 tiled_cleanup(all_data);
 
 #define tiled_read
-/// @desc Read a TMX file and parse out all of its data, returning a ds_map
+/// @desc Read a TMX/TSX file and parse out all of its data, returning a ds_map
 ///       Example usage 1: Simply read the tmx file, create the tiles, and then cleanup memory
 ///			var tiles = tiled_read("map1.tmx");
 ///         tiled_create(tiles);
@@ -571,9 +571,10 @@ tiled_cleanup(all_data);
 /// @arg filename name of the file to process
 
 var filename = argument0
+var filepath = filename_path(filename)
 
 if (not file_exists(filename)) {
-	show_error("TMX file " + filename + " does not exist!", true);
+	show_error("TMX/TSX file " + filename + " does not exist!", true);
 }
 
 // parse the file
@@ -601,7 +602,10 @@ while (DerpXmlRead_Read()) {
 				case "?xml": // ignore
 					break;
 				case "map":
-					Xtiled_parse_map(all_data);
+					Xtiled_parse_map(all_data, filepath);
+					break;
+				case "tileset":
+					Xtiled_parse_tileset(all_data[? "tilesets"], filepath);
 					break;
 				default:
 					show_error("Tiled Parse error: OpenTag " + value + " not supported in root", true)
@@ -758,7 +762,10 @@ while DerpXmlRead_Read() {
 #define Xtiled_parse_map
 /// @desc Parse <map>
 /// @args all_data the datastructure to use
+/// @args filepath the path to the file being read
 var all_data = argument0;
+var filepath = argument1;
+show_debug_message("parse map: " + filepath)
 
 var map_attribs = all_data[? "map_attribs"];
 var tilesets = all_data[? "tilesets"];
@@ -785,7 +792,7 @@ while DerpXmlRead_Read() {
 		case DerpXmlType_OpenTag:
 			switch (value) {
 				case "tileset":
-					Xtiled_parse_tileset(tilesets);
+					Xtiled_parse_tileset(tilesets, filepath);
 					break;
 				case "layer":
 					Xtiled_parse_layer(layers);
@@ -996,19 +1003,46 @@ while (DerpXmlRead_Read()) {
 #define Xtiled_parse_tileset
 /// @desc Parse <map><tileset>
 /// @args tilesets the tilesets map to use
+/// @args filepath the path to the file being read
 var tilesets = argument0;
+var filepath = argument1;
 
 // get attributes
 var tileset_map = ds_map_create();
 var tileset_name = DerpXmlRead_CurGetAttribute("name");
-if (not is_undefined(DerpXmlRead_CurGetAttribute("source"))) {
-  show_error("Tiled Pares error: external files not supported, please check the 'embed in map' checkbox", true);
+var tileset_source = DerpXmlRead_CurGetAttribute("source");
+if (tileset_source != undefined) {
+  // Parse external tileset file. Assumes this is a .tsx file with exactly one <tileset>
+  var tsx_path = tileset_source;
+  // If the file doesn't exist, it might be because the path being resolved is relative to the GMS project's datafiles, rather than the .tmx file's path. Try to resolve that path.
+  if (!file_exists(tsx_path)) {
+	tsx_path = filename_path(filename_dir(filepath) + tileset_source)
+  }
+  
+  // DerpXml isn't made for reading multiple files at once since it uses global variables. Basically back up everything in a separate variable, then we'll restore it when we're done reading the other file.
+  var backupDerpXmlRead = global.DerpXmlRead;
+  
+  var data = tiled_read(tsx_path);
+  
+  // After reading the file, restore the previous values to DerpXml so we don't lose our place in the .tmx
+  global.DerpXmlRead = backupDerpXmlRead;
+  
+  // Now process the data from the .tsx
+  var ts_key = ds_map_find_first(data[? "tilesets"]);
+  var ts = ds_map_find_value(data[? "tilesets"], ts_key);
+  tileset_name = ts[? "name"]
+  ds_map_copy(tileset_map, ts);
+  ds_map_destroy(data); // Don't need this anymore since we copied the data to a different map.
+} else {
+  ds_map_add(tileset_map, "name", tileset_name);
+  ds_map_add(tileset_map, "tilewidth", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilewidth")));
+  ds_map_add(tileset_map, "tileheight", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tileheight")));
+  ds_map_add(tileset_map, "tilecount", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilecount")));
+  ds_map_add(tileset_map, "columns", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("columns")));
 }
-ds_map_add(tileset_map, "firstgid", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("firstgid")));
-ds_map_add(tileset_map, "tilewidth", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilewidth")));
-ds_map_add(tileset_map, "tileheight", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tileheight")));
-ds_map_add(tileset_map, "tilecount", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilecount")));
-ds_map_add(tileset_map, "columns", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("columns")));
+
+// Use replace so we can overwrite the value if it was already set (e.g. from an external file, which doesn't have a firstgid attribute)
+ds_map_replace(tileset_map, "firstgid", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("firstgid")));
 ds_map_add_map(tilesets, tileset_name, tileset_map);
 
 // get children
