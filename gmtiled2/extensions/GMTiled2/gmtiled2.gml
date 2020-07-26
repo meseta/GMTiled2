@@ -413,6 +413,13 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 				show_debug_message("Create instance " + instance[? "name"])
 				ds_list_add(new_instances, inst);
 				
+				if (instance[? "flip_h"] == true) {
+					inst.image_xscale *= -1;
+				}
+				if (instance[? "flip_v"] == true) {
+					inst.image_yscale *= -1;
+				}
+				
 				// First inherit properties from the tileset tile
 				if (!is_undefined(tile_properties)) {
 					for (var k=0; k<ds_list_size(tile_properties); k++) {
@@ -884,6 +891,17 @@ ds_map_add(object_map, "name", DerpXmlRead_CurGetAttribute("name"));
 ds_map_add(object_map, "x", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("x")));
 ds_map_add(object_map, "y", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("y")));
 ds_map_add(object_map, "gid", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("gid")));
+
+// Tiled uses high values in gid as flags for flipping the image. We need to account for those or it won't spawn
+if (object_map[? "gid"] >= 2147483648) {
+	ds_map_add(object_map, "flip_h", true);
+	object_map[? "gid"] -= 2147483648;
+}
+if (object_map[? "gid"] >= 1073741824) {
+	ds_map_add(object_map, "flip_v", true);
+	object_map[? "gid"] -= 1073741824;
+}
+
 var properties_list = ds_list_create();
 ds_map_add_list(object_map, "properties", properties_list);
 ds_list_add(instances_list, object_map)
