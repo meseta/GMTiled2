@@ -1166,7 +1166,8 @@ while (DerpXmlRead_Read()) {
 					Xtiled_parse_tile(tiles, tileset_map[? "firstgid"]);
 					break;
 				case "grid":
-					Xtiled_parse_skip("grid");
+				case "tileoffset":
+					Xtiled_parse_skip(value);
 					break;
 				default:
 					show_error("Tiled Parse error: OpenTag " + value + " not supported in tileset", true)
