@@ -844,6 +844,9 @@ ds_map_add(map_attribs, "height", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribu
 ds_map_add(map_attribs, "tilewidth", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilewidth")));
 ds_map_add(map_attribs, "tileheight", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tileheight")));
 
+var properties_list = ds_list_create();
+ds_map_add_list(all_data, "properties", properties_list);
+
 while DerpXmlRead_Read() {
 	var type = DerpXmlRead_CurType();
 	var value =  DerpXmlRead_CurValue();
@@ -862,6 +865,9 @@ while DerpXmlRead_Read() {
 					break;
 				case "objectgroup":
 					Xtiled_parse_objectgroup(layers);
+					break;
+				case "properties":
+					Xtiled_parse_properties(properties_list);
 					break;
 				default:
 					show_error("Tiled Parse error: OpenTag " + value + " not supported in map", true)
