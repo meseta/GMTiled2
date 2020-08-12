@@ -316,6 +316,7 @@ var all_data = argument0;
 var map_attribs = all_data[? "map_attribs"];
 var tilesets = all_data[? "tilesets"];
 var layers = all_data[? "layers"];
+var tiles = all_data[? "tiles"];
 
 // datastructures for undoing/unloading later
 var new_layers = all_data[? "new_layers"]
@@ -376,6 +377,27 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 			var instance_list = layer_map[? "instances"];
 			for (var j=0; j<ds_list_size(instance_list); j++) {
 				var instance = instance_list[| j];
+				var tile = ds_map_find_value(tiles, string(instance[? "gid"]));
+				var tile_properties = is_undefined(tile) ? undefined : tile[? "properties"]; // Only tiles that have properties will exist in the ds_map, so we have to account for undefined
+				var properties = instance[? "properties"];
+				
+				// Allow custom property with the object name as an alternative to the built-in Name property
+				if (!is_undefined(tile_properties) && ds_exists(tile_properties, ds_type_list)) {
+					for (var k=0; k<ds_list_size(tile_properties); k++) {
+						var prop = tile_properties[| k];
+						if (prop[? "name"] == "_object_name") {
+							instance[? "name"] = prop[? "value"];
+						}
+					}
+				}
+				if (ds_exists(properties, ds_type_list)) {
+					for (var k=0; k<ds_list_size(properties); k++) {
+						var prop = properties[| k];
+						if (prop[? "name"] == "_object_name") {
+							instance[? "name"] = prop[? "value"];
+						}
+					}
+				}
 
 				if (not is_string(instance[? "name"])) {  // skip instances with no name
 					show_debug_message("Object has no name, skipping");
@@ -390,11 +412,50 @@ for (var i = 0; i<ds_list_size(layers); i++) {
 				var inst = instance_create_layer(instance[? "x"], instance[? "y"], layer_id, object);
 				show_debug_message("Create instance " + instance[? "name"])
 				ds_list_add(new_instances, inst);
+				
+				if (instance[? "flip_h"] == true) {
+					inst.image_xscale *= -1;
+				}
+				if (instance[? "flip_v"] == true) {
+					inst.image_yscale *= -1;
+				}
+				
+				// First inherit properties from the tileset tile
+				if (!is_undefined(tile_properties)) {
+					for (var k=0; k<ds_list_size(tile_properties); k++) {
+						var	prop = tile_properties[| k];
+						if (prop[? "name"] == "_object_name") {
+							// Ignore this special property as it's not intended to set an instance variable
+							continue;
+						}
+						
+						var value = prop[? "value"];
+						switch (prop[? "type"]) {
+							case "float":
+							case "int":
+								value = real(value);
+								break;
+							case "bool":
+								value = (value == "true")
+								break;
+							case "color":
+								value = Xtiled_convert_color(value);
+								break;
+						}
 
-				var properties = instance[? "properties"];
-
+						show_debug_message("Set property " + prop[? "name"] + " to " + string(value));
+						variable_instance_set(inst, prop[? "name"], value);
+					}
+				}
+				
+				// Now get properties set on the instance itself
 				for (var k=0; k<ds_list_size(properties); k++) {
 					var	prop = properties[| k];
+					if (prop[? "name"] == "_object_name") {
+						// Ignore this special property as it's not intended to set an instance variable
+						continue;
+					}
+					
 					var value = prop[? "value"];
 					switch (prop[? "type"]) {
 						case "float":
@@ -556,7 +617,7 @@ tiled_create(all_data);
 tiled_cleanup(all_data);
 
 #define tiled_read
-/// @desc Read a TMX file and parse out all of its data, returning a ds_map
+/// @desc Read a TMX/TSX file and parse out all of its data, returning a ds_map
 ///       Example usage 1: Simply read the tmx file, create the tiles, and then cleanup memory
 ///			var tiles = tiled_read("map1.tmx");
 ///         tiled_create(tiles);
@@ -569,11 +630,14 @@ tiled_cleanup(all_data);
 ///         tiled_destroy(global.tiles);
 ///
 /// @arg filename name of the file to process
+/// @arg [gid_offset] the firstgid of the child tileset in a .tsx file (derived from parent .tmx file when parsing external tilesets)
 
-var filename = argument0
+var filename = argument[0]
+var gid_offset = argument_count > 1 ? argument[1] : 0;
+var filepath = filename_path(filename)
 
 if (not file_exists(filename)) {
-	show_error("TMX file " + filename + " does not exist!", true);
+	show_error("TMX/TSX file " + filename + " does not exist!", true);
 }
 
 // parse the file
@@ -583,6 +647,7 @@ DerpXmlRead_OpenFile(filename)
 var all_data = ds_map_create();
 ds_map_add_map(all_data, "map_attribs", ds_map_create());
 ds_map_add_map(all_data, "tilesets", ds_map_create());
+ds_map_add_map(all_data, "tiles", ds_map_create());
 ds_map_add_list(all_data, "layers", ds_list_create());
 ds_map_add_list(all_data, "new_layers", ds_list_create())
 ds_map_add_map(all_data, "original_depths", ds_map_create())
@@ -601,7 +666,10 @@ while (DerpXmlRead_Read()) {
 				case "?xml": // ignore
 					break;
 				case "map":
-					Xtiled_parse_map(all_data);
+					Xtiled_parse_map(all_data, filepath);
+					break;
+				case "tileset":
+					Xtiled_parse_tileset(all_data, filepath, gid_offset);
 					break;
 				default:
 					show_error("Tiled Parse error: OpenTag " + value + " not supported in root", true)
@@ -758,7 +826,9 @@ while DerpXmlRead_Read() {
 #define Xtiled_parse_map
 /// @desc Parse <map>
 /// @args all_data the datastructure to use
+/// @args filepath the path this map file is relative to
 var all_data = argument0;
+var filepath = argument1;
 
 var map_attribs = all_data[? "map_attribs"];
 var tilesets = all_data[? "tilesets"];
@@ -774,6 +844,9 @@ ds_map_add(map_attribs, "height", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribu
 ds_map_add(map_attribs, "tilewidth", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilewidth")));
 ds_map_add(map_attribs, "tileheight", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tileheight")));
 
+var properties_list = ds_list_create();
+ds_map_add_list(all_data, "properties", properties_list);
+
 while DerpXmlRead_Read() {
 	var type = DerpXmlRead_CurType();
 	var value =  DerpXmlRead_CurValue();
@@ -785,13 +858,16 @@ while DerpXmlRead_Read() {
 		case DerpXmlType_OpenTag:
 			switch (value) {
 				case "tileset":
-					Xtiled_parse_tileset(tilesets);
+					Xtiled_parse_tileset(all_data, filepath);
 					break;
 				case "layer":
 					Xtiled_parse_layer(layers);
 					break;
 				case "objectgroup":
 					Xtiled_parse_objectgroup(layers);
+					break;
+				case "properties":
+					Xtiled_parse_properties(properties_list);
 					break;
 				default:
 					show_error("Tiled Parse error: OpenTag " + value + " not supported in map", true)
@@ -820,6 +896,18 @@ var object_map = ds_map_create();
 ds_map_add(object_map, "name", DerpXmlRead_CurGetAttribute("name"));
 ds_map_add(object_map, "x", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("x")));
 ds_map_add(object_map, "y", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("y")));
+ds_map_add(object_map, "gid", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("gid")));
+
+// Tiled uses high values in gid as flags for flipping the image. We need to account for those or it won't spawn
+if (object_map[? "gid"] >= 2147483648) {
+	ds_map_add(object_map, "flip_h", true);
+	object_map[? "gid"] -= 2147483648;
+}
+if (object_map[? "gid"] >= 1073741824) {
+	ds_map_add(object_map, "flip_v", true);
+	object_map[? "gid"] -= 1073741824;
+}
+
 var properties_list = ds_list_create();
 ds_map_add_list(object_map, "properties", properties_list);
 ds_list_add(instances_list, object_map)
@@ -995,20 +1083,75 @@ while (DerpXmlRead_Read()) {
 
 #define Xtiled_parse_tileset
 /// @desc Parse <map><tileset>
-/// @args tilesets the tilesets map to use
-var tilesets = argument0;
+/// @args all_data the datastructure to use
+/// @args filepath the path relative paths are relative to
+/// @args [gid_offset] the firstgid of the tileset (derived from parent file when parsing nested files)
+var all_data = argument[0];
+var filepath = argument[1];
+var gid_offset = argument_count > 2 ? argument[2] : 0;
+
+var tilesets = all_data[? "tilesets"];
+var tiles = all_data[? "tiles"];
 
 // get attributes
 var tileset_map = ds_map_create();
 var tileset_name = DerpXmlRead_CurGetAttribute("name");
-if (not is_undefined(DerpXmlRead_CurGetAttribute("source"))) {
-  show_error("Tiled Pares error: external files not supported, please check the 'embed in map' checkbox", true);
+var tileset_source = DerpXmlRead_CurGetAttribute("source");
+var tileset_firstgid = gid_offset > 0 ? gid_offset : Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("firstgid"));
+
+ds_map_add_map(tileset_map, "tiles", tiles);
+ds_map_add(tileset_map, "firstgid", tileset_firstgid);
+
+if (tileset_source != undefined) {
+  // Parse external tileset file. Assumes this is a .tsx file with exactly one <tileset>
+  var tsx_path = tileset_source;
+  // If the file doesn't exist, it might be because the path being resolved is relative to the GMS project's datafiles, rather than the .tmx file's path. Try to resolve that path.
+  if (!file_exists(tsx_path)) {
+	tsx_path = filepath + tileset_source;
+  }
+  
+  // DerpXml isn't made for reading multiple files at once since it uses global variables. Basically back up everything in a separate variable, then we'll restore it when we're done reading the other file.
+  var backupDerpXmlRead = global.DerpXmlRead;
+  
+  var data = tiled_read(tsx_path, tileset_firstgid);
+  
+  // After reading the file, restore the previous values to DerpXml so we don't lose our place in the .tmx
+  global.DerpXmlRead = backupDerpXmlRead;
+  
+  // Now process the data from the .tsx
+  var ts_key = ds_map_find_first(data[? "tilesets"]);
+  var ts = ds_map_find_value(data[? "tilesets"], ts_key);
+  tileset_name = ts[? "name"];
+  ds_map_copy(tileset_map, ts);
+  // We also need to copy all of the tiles from the child file into the all_data map which is a comprehensive list of tiles for the tmx
+  var tiles_to_copy = data[? "tiles"];
+  for (var key = ds_map_find_first(tiles_to_copy); !is_undefined(key); key = ds_map_find_next(tiles_to_copy, key)) {
+	// When the parent map (data) gets destroyed, it will also destroy the tile's map, so we need to make a new one and copy the values over. Same goes for nested properties list.
+	var new_tile = ds_map_create();
+	var new_props = ds_list_create();
+	var current_tile = tiles_to_copy[? key];
+	var current_props = current_tile[? "properties"];
+	ds_list_copy(new_props, current_props);
+	for (var i = 0; i < ds_list_size(new_props); i++) {
+		var prop_map = ds_map_create();
+		ds_map_copy(prop_map, new_props[| i]);
+		ds_list_replace(new_props, i, prop_map);
+		ds_list_mark_as_map(new_props, i);
+	}
+	ds_map_copy(new_tile, current_tile);
+	ds_map_replace_list(new_tile, "properties", new_props);
+	ds_map_add_map(tiles, key, new_tile);
+  }
+  
+  ds_map_destroy(data); // Don't need this anymore since we copied the data to a different map.
+} else {
+  ds_map_add(tileset_map, "name", tileset_name);
+  ds_map_add(tileset_map, "tilewidth", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilewidth")));
+  ds_map_add(tileset_map, "tileheight", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tileheight")));
+  ds_map_add(tileset_map, "tilecount", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilecount")));
+  ds_map_add(tileset_map, "columns", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("columns")));
 }
-ds_map_add(tileset_map, "firstgid", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("firstgid")));
-ds_map_add(tileset_map, "tilewidth", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilewidth")));
-ds_map_add(tileset_map, "tileheight", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tileheight")));
-ds_map_add(tileset_map, "tilecount", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("tilecount")));
-ds_map_add(tileset_map, "columns", Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("columns")));
+
 ds_map_add_map(tilesets, tileset_name, tileset_map);
 
 // get children
@@ -1026,7 +1169,11 @@ while (DerpXmlRead_Read()) {
 					Xtiled_parse_image(tilesets, tileset_name);
 					break;
 				case "tile":
-					Xtiled_parse_skip("tile");
+					Xtiled_parse_tile(tiles, tileset_map[? "firstgid"]);
+					break;
+				case "grid":
+				case "tileoffset":
+					Xtiled_parse_skip(value);
 					break;
 				default:
 					show_error("Tiled Parse error: OpenTag " + value + " not supported in tileset", true)
@@ -1041,6 +1188,54 @@ while (DerpXmlRead_Read()) {
 			}
 		default:
 			show_error("Tiled Parse error: " + type + " not supported in tileset", true)
+			break;
+	}
+}
+
+#define Xtiled_parse_tile
+/// @desc Parse <map><tileset><tile>
+/// @arg tiles_map the index of the map needed to add tiles to
+/// @arg gid_offset the firstgid for the tileset this tile belongs to
+var tiles_map = argument0;
+var gid_offset = argument1;
+
+// get attributes
+var tile_map = ds_map_create();
+var tile_id = Xtiled_real_or_undef(DerpXmlRead_CurGetAttribute("id"));
+var gid = gid_offset + tile_id;
+ds_map_add(tile_map, "id", tile_id);
+
+var properties_list = ds_list_create();
+ds_map_add_list(tile_map, "properties", properties_list);
+ds_map_add_map(tiles_map, string(gid), tile_map)
+
+// get children
+while DerpXmlRead_Read() {
+	var type = DerpXmlRead_CurType();
+	var value =  DerpXmlRead_CurValue();
+    show_debug_message("Parse <tile>: " + type + ", " + value)
+
+	switch (type) {
+		case DerpXmlType_Whitespace:
+			break;
+		case DerpXmlType_OpenTag:
+			switch (value) {
+				case "properties":
+					Xtiled_parse_properties(properties_list);
+					break;
+				default:
+					Xtiled_parse_skip(value);
+			}
+			break;
+		case DerpXmlType_CloseTag:
+			if (value == "tile") {
+				return;
+			}
+			else {
+				show_error("Tiled Parse error: unexpected CloseTag " + value + " in tile", true)
+			}
+		default:
+			show_error("Tiled Parse error: " + value + " not supported in tile", true)
 			break;
 	}
 }

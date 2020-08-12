@@ -1,7 +1,7 @@
 {
     "id": "eed9882c-4d38-40e3-96a1-9035f6eb00ac",
     "modelName": "GMExtension",
-    "mvc": "1.0",
+    "mvc": "1.2",
     "name": "GMTiled2",
     "IncludedResources": [
         
@@ -20,6 +20,7 @@
     "copyToTargets": -1,
     "date": "2019-53-16 09:08:29",
     "description": "",
+    "exportToGame": true,
     "extensionName": "",
     "files": [
         {
@@ -481,6 +482,21 @@
                     "kind": 2,
                     "name": "Xtiled_real_or_undef",
                     "returnType": 1
+                },
+                {
+                    "id": "0ea95c9a-6c51-497b-bdbb-77dfd89aaea2",
+                    "modelName": "GMExtensionFunction",
+                    "mvc": "1.0",
+                    "argCount": 0,
+                    "args": [
+                        
+                    ],
+                    "externalName": "Xtiled_parse_tile",
+                    "help": "",
+                    "hidden": false,
+                    "kind": 2,
+                    "name": "Xtiled_parse_tile",
+                    "returnType": 1
                 }
             ],
             "init": "",
@@ -502,6 +518,7 @@
                 "aba1aae7-2ad6-4a25-ac9e-2f5b19bebf95",
                 "b02e6de0-dc45-4fcf-96e5-9cda7cf6d490",
                 "ffe995cb-1fda-44c9-9dbb-f854620f95a4",
+                "0ea95c9a-6c51-497b-bdbb-77dfd89aaea2",
                 "e9443d00-fa8f-424e-a946-ddee21895d24",
                 "69434fa9-5ee6-466f-aa12-0b8eef8a4ca2",
                 "3d35fdc8-ef0f-4dbc-b09d-2d51153da1a6",
@@ -532,9 +549,12 @@
     "maccompilerflags": "",
     "maclinkerflags": "",
     "macsourcedir": "",
+    "options": null,
+    "optionsFile": "options.json",
     "packageID": "",
     "productID": "",
     "sourcedir": "",
+    "supportedTargets": -1,
     "tvosProps": false,
     "tvosSystemFrameworkEntries": [
         

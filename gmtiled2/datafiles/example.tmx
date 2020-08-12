@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="23">
+<map version="1.4" tiledversion="1.4.1" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="24">
  <tileset firstgid="1" name="tl_dungeon_sheet" tilewidth="16" tileheight="16" tilecount="250" columns="25">
   <image source="../sprites/spr_dungeon_sheet/bf3bb2b3-0b48-43c7-aee7-b9233d8db6e8.png" width="400" height="160"/>
+  <tile id="195">
+   <properties>
+    <property name="_object_name" value="obj_character"/>
+    <property name="image_index" type="int" value="0"/>
+   </properties>
+  </tile>
+  <tile id="196">
+   <properties>
+    <property name="image_index" type="int" value="1"/>
+   </properties>
+  </tile>
+  <tile id="197">
+   <properties>
+    <property name="image_index" type="int" value="2"/>
+   </properties>
+  </tile>
+  <tile id="198">
+   <properties>
+    <property name="image_index" type="int" value="3"/>
+   </properties>
+  </tile>
+  <tile id="199">
+   <properties>
+    <property name="image_index" type="int" value="4"/>
+   </properties>
+  </tile>
  </tileset>
  <tileset firstgid="251" name="tl_rotation_test" tilewidth="32" tileheight="32" margin="16" tilecount="4" columns="2">
   <image source="../sprites/spr_rotation_test/0fd70d2a-56e6-4dac-a2af-e44556aaca64.png" width="96" height="96"/>
@@ -22,13 +48,14 @@
   </data>
  </layer>
  <objectgroup id="9" name="Instances">
-  <object id="19" name="obj_character" gid="197" x="118" y="186" width="16" height="16"/>
   <object id="20" name="obj_character" gid="197" x="187.5" y="140.5" width="16" height="16"/>
-  <object id="21" name="obj_character" gid="197" x="264.5" y="128.5" width="16" height="16">
+  <object id="21" gid="197" x="264.5" y="128.5" width="16" height="16">
    <properties>
+    <property name="_object_name" value="obj_character"/>
     <property name="image_alpha" type="float" value="0.5"/>
    </properties>
   </object>
+  <object id="23" gid="196" x="118" y="186" width="16" height="16"/>
  </objectgroup>
  <layer id="8" name="Walls_upper" width="20" height="20">
   <data encoding="base64" compression="zlib">
